@@ -1,79 +1,77 @@
-// app/login.tsx
-import { View, Text, TextInput, Pressable } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
 import { useState } from 'react';
-import { useRouter } from 'expo-router';
-import { useAuth } from '../hooks/useAuth';
+import { router } from 'expo-router';
 import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { loginUser } from '../lib/api';
 
-export default function Login() {
-  const router = useRouter();
-  const { login } = useAuth();
-
+export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Toast.show({
-        type: 'error',
-        text1: 'Missing Fields',
-        text2: 'Please enter both email and password.',
-      });
-      return;
+      return Toast.show({ type: 'error', text1: 'Please fill in all fields' });
     }
 
-    const success = await login(email, password);
-    if (success) {
-      Toast.show({
-        type: 'success',
-        text1: 'Login Successful',
-        text2: 'Welcome back!',
-      });
+    try {
+      setLoading(true);
+      const data = await loginUser(email, password);
+      await AsyncStorage.setItem('token', data.token);
+      await AsyncStorage.setItem('user', JSON.stringify(data.user));
+      Toast.show({ type: 'success', text1: 'Logged in successfully!' });
       router.replace('/');
-    } else {
-      Toast.show({
-        type: 'error',
-        text1: 'Login Failed',
-        text2: 'Invalid email or password.',
-      });
+    } catch (err: any) {
+      Toast.show({ type: 'error', text1: err.message || 'Login failed' });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <View className="flex-1 justify-center items-center bg-black px-6">
-      <Text className="text-white text-3xl font-bold mb-8">Welcome Back 👋</Text>
+    <View className="flex-1 justify-center px-6 bg-black/60">
+      <Animated.View entering={FadeInDown} className="items-center mb-8">
+        <Image source={require('../assets/logo.png')} className="w-24 h-24 mb-4" resizeMode="contain" />
+        <Text className="text-3xl font-bold text-light">Welcome Back</Text>
+      </Animated.View>
 
-      <TextInput
-        className="w-full border border-gray-700 bg-gray-900 text-white rounded-2xl px-4 py-3 mb-4"
-        placeholder="Email"
-        placeholderTextColor="#888"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-      />
+      <Animated.View entering={FadeInDown.delay(100)}>
+        <TextInput
+          placeholder="Email"
+          placeholderTextColor="#94a3b8"
+          value={email}
+          onChangeText={setEmail}
+          className="bg-white/10 text-white p-4 mb-4 rounded-2xl border border-white/20"
+        />
 
-      <TextInput
-        className="w-full border border-gray-700 bg-gray-900 text-white rounded-2xl px-4 py-3 mb-4"
-        placeholder="Password"
-        placeholderTextColor="#888"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+        <TextInput
+          placeholder="Password"
+          placeholderTextColor="#94a3b8"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+          className="bg-white/10 text-white p-4 mb-6 rounded-2xl border border-white/20"
+        />
 
-      <Pressable
-        onPress={handleLogin}
-        className="bg-violet-600 w-full rounded-2xl py-3 mb-3 active:opacity-80"
-      >
-        <Text className="text-white text-center text-lg font-semibold">Login</Text>
-      </Pressable>
+        <TouchableOpacity
+          onPress={handleLogin}
+          disabled={loading}
+          className="bg-accent py-4 rounded-2xl active:opacity-90"
+        >
+          <Text className="text-center text-white font-bold text-lg">
+            {loading ? 'Logging In...' : 'Login'}
+          </Text>
+        </TouchableOpacity>
 
-      <Text className="text-gray-400 mt-3">
-        Don't have an account?{' '}
-        <Text onPress={() => router.push('/register')} className="text-violet-400">
-          Register
-        </Text>
-      </Text>
+        <TouchableOpacity
+          onPress={() => router.push('/register')}
+          className="mt-4"
+        >
+          <Text className="text-center text-accent">Don't have an account? Register</Text>
+        </TouchableOpacity>
+      </Animated.View>
     </View>
   );
 }

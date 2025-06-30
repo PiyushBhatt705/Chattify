@@ -1,23 +1,68 @@
-// components/ContactCard.tsx
-import { View, Text, Pressable, Image } from 'react-native';
+import React from "react";
+import { View, Text, Image, TouchableOpacity } from "react-native";
+import { useTailwind } from "nativewind";
+import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
-export default function ContactCard({
-  name,
-  onPress,
-}: {
+type ContactCardProps = {
+  userId: string;
   name: string;
-  onPress: () => void;
-}) {
+  email?: string;
+  avatarUrl?: string;
+  showIcon?: boolean;
+  onPress?: () => void;
+};
+
+const ContactCard: React.FC<ContactCardProps> = ({
+  userId,
+  name,
+  email,
+  avatarUrl,
+  showIcon = true,
+  onPress,
+}) => {
+  const tailwind = useTailwind();
+  const router = useRouter();
+
+  const handlePress = () => {
+    if (onPress) {
+      onPress();
+    } else {
+      router.push(`/chat/${userId}`);
+    }
+  };
+
   return (
-    <Pressable
-      onPress={onPress}
-      className="flex-row items-center bg-gray-900 px-4 py-3 rounded-xl mb-3 active:opacity-90"
+    <TouchableOpacity
+      onPress={handlePress}
+      style={tailwind(
+        "flex-row items-center p-4 border-b border-gray-800 bg-[#0d0d0d] active:bg-[#1a1a1a]"
+      )}
     >
       <Image
-        source={{ uri: `https://api.dicebear.com/7.x/initials/svg?seed=${name}` }}
-        className="w-10 h-10 rounded-full mr-4"
+        source={{
+          uri:
+            avatarUrl ||
+            "https://ui-avatars.com/api/?name=" +
+              encodeURIComponent(name),
+        }}
+        style={tailwind("w-12 h-12 rounded-full")}
       />
-      <Text className="text-white text-base">{name}</Text>
-    </Pressable>
+
+      <View style={tailwind("flex-1 ml-4")}>
+        <Text style={tailwind("text-white text-base font-semibold")}>
+          {name}
+        </Text>
+        {email && (
+          <Text style={tailwind("text-gray-400 text-sm")}>{email}</Text>
+        )}
+      </View>
+
+      {showIcon && (
+        <Ionicons name="chatbubble-ellipses" size={20} color="#888" />
+      )}
+    </TouchableOpacity>
   );
-}
+};
+
+export default ContactCard;

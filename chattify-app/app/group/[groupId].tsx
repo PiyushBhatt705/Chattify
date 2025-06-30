@@ -1,25 +1,18 @@
-// app/group/[groupId].tsx
-import Protected from '../components/Protected';
-import { useLocalSearchParams } from 'expo-router';
 import { View, Text } from 'react-native';
-import ChatInput from '../../components/ChatInput';
-import ChatMessage from '../../components/ChatMessage';
-import TypingIndicator from '../../components/TypingIndicator';
+import { useLocalSearchParams } from 'expo-router';
+import Protected from '../../components/Protected';
 
 export default function GroupChatScreen() {
   const { groupId } = useLocalSearchParams();
 
   return (
     <Protected>
-      <View className="flex-1 bg-black pt-14">
-        <View className="flex-1 px-4">
-          <ChatMessage message="Welcome to the group chat." sender="system" />
-          <TypingIndicator />
-        </View>
-
-        <ChatInput groupId={groupId as string} />
+      <View className="flex-1 bg-black/70 justify-center items-center px-6">
+        <Text className="text-light text-2xl font-bold text-center">
+          Group Chat Screen
+        </Text>
+        <Text className="text-gray-400 mt-2 text-sm">Group ID: {groupId}</Text>
       </View>
-    <Protected>
-
+    </Protected>
   );
 }

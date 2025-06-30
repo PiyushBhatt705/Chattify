@@ -1,39 +1,63 @@
-// app/users.tsx
-import Protected from '../components/Protected';
-import { View, Text, ScrollView, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
+import { View, Text, Image, TouchableOpacity, FlatList } from 'react-native';
 import { useEffect, useState } from 'react';
-import { getAllUsers } from '../lib/api'; // You will define this
-import { User } from '../types';
+import Toast from 'react-native-toast-message';
+import { getAllUsers } from '../lib/api';
+import { useRouter } from 'expo-router';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
-export default function Users() {
+export default function UsersScreen() {
   const router = useRouter();
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState([]);
+
+  const loadUsers = async () => {
+    try {
+      const data = await getAllUsers();
+      setUsers(data.users);
+    } catch (err: any) {
+      Toast.show({ type: 'error', text1: err.message || 'Failed to fetch users' });
+    }
+  };
 
   useEffect(() => {
-    (async () => {
-      const data = await getAllUsers();
-      setUsers(data);
-    })();
+    loadUsers();
   }, []);
 
-  return (
-    <Protected>
-      <View className="flex-1 bg-black px-4 pt-16">
-        <Text className="text-white text-2xl font-bold mb-4">All Users</Text>
-
-        <ScrollView>
-          {users.map(user => (
-            <Pressable
-              key={user._id}
-              onPress={() => router.push(`/chat/${user._id}`)}
-              className="flex-row items-center mb-4 bg-gray-900 px-4 py-3 rounded-xl"
-            >
-              <Text className="text-white text-lg">{user.name}</Text>
-            </Pressable>
-          ))}
-        </ScrollView>
+  const renderItem = ({ item }: any) => (
+    <TouchableOpacity
+      onPress={() => router.push(`/chat/${item._id}`)}
+      className="flex-row items-center bg-white/10 rounded-xl p-4 mb-3 active:opacity-80"
+    >
+      <Image
+        source={item.avatar?.url ? { uri: item.avatar.url } : require('../assets/avatar-default.png')}
+        className="w-12 h-12 rounded-full mr-4"
+      />
+      <View>
+        <Text className="text-light font-semibold text-lg">{item.name}</Text>
+        <Text className="text-gray-400 text-sm">{item.email}</Text>
       </View>
-    </Protected>
+    </TouchableOpacity>
+  );
+
+  return (
+    <View className="flex-1 bg-black/60 px-6 pt-12">
+      <Animated.Text
+        entering={FadeInDown}
+        className="text-light text-3xl font-bold mb-6"
+      >
+        People on Chattify
+      </Animated.Text>
+
+      <FlatList
+        data={users}
+        keyExtractor={(item) => item._id}
+        renderItem={renderItem}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <Text className="text-light text-center mt-10">
+            No users found.
+          </Text>
+        }
+      />
+    </View>
   );
 }

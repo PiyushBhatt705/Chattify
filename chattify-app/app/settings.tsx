@@ -1,38 +1,52 @@
-// app/settings.tsx
-import Protected from '../components/Protected';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, TouchableOpacity, Switch } from 'react-native';
+import { useState } from 'react';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
-import { useAuth } from '../hooks/useAuth';
-import Toast from 'react-native-toast-message';
 
-export default function Settings() {
+export default function SettingsScreen() {
   const router = useRouter();
-  const { logout, user } = useAuth();
+  const [darkMode, setDarkMode] = useState(true);
+  const [notifications, setNotifications] = useState(true);
 
-  const handleLogout = () => {
-    logout();
-    Toast.show({
-      type: 'success',
-      text1: 'Logged out',
-      text2: 'See you soon, ' + (user?.name || 'user') + '!',
-    });
-    router.replace('/login');
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+    // Save to AsyncStorage or context if needed
+  };
+
+  const toggleNotifications = () => {
+    setNotifications(!notifications);
+    // Save to AsyncStorage or context if needed
   };
 
   return (
-    <Protected>
-      <View className="flex-1 bg-black px-6 pt-20">
-        <Text className="text-white text-3xl font-bold mb-6">Settings ⚙️</Text>
+    <View className="flex-1 bg-black/60 px-6 pt-12">
+      <Animated.Text
+        entering={FadeInDown}
+        className="text-light text-3xl font-bold mb-8"
+      >
+        Settings
+      </Animated.Text>
 
-        {/* Logout */}
-        <Pressable
-          onPress={handleLogout}
-          className="bg-red-600 w-full rounded-2xl py-3 mt-5 active:opacity-80"
+      <Animated.View entering={FadeInDown.delay(100)} className="mb-6">
+        <View className="flex-row justify-between items-center mb-4">
+          <Text className="text-light text-lg">Dark Mode</Text>
+          <Switch value={darkMode} onValueChange={toggleDarkMode} />
+        </View>
+
+        <View className="flex-row justify-between items-center mb-4">
+          <Text className="text-light text-lg">Notifications</Text>
+          <Switch value={notifications} onValueChange={toggleNotifications} />
+        </View>
+      </Animated.View>
+
+      <Animated.View entering={FadeInDown.delay(200)}>
+        <TouchableOpacity
+          onPress={() => router.push('/profile')}
+          className="bg-white/10 py-4 rounded-2xl active:opacity-80"
         >
-          <Text className="text-white text-center text-lg font-semibold">Logout</Text>
-        </Pressable>
-      </View>
-    <Protected>
-
+          <Text className="text-center text-light font-semibold text-lg">View Profile</Text>
+        </TouchableOpacity>
+      </Animated.View>
+    </View>
   );
 }

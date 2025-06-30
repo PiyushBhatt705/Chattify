@@ -1,12 +1,20 @@
-// context/AuthContext.tsx
-
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-type User = {
+export type User = {
   _id: string;
   name: string;
   email: string;
+  avatar?: {
+    public_id: string;
+    url: string;
+  };
   token: string;
 };
 
@@ -25,23 +33,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const loadUser = async () => {
-      const storedUser = await AsyncStorage.getItem('user');
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
+      try {
+        const jsonValue = await AsyncStorage.getItem('@chattify_user');
+        if (jsonValue != null) {
+          const storedUser = JSON.parse(jsonValue);
+          setUser(storedUser);
+        }
+      } catch (e) {
+        console.error('Failed to load user', e);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
+
     loadUser();
   }, []);
 
   const login = async (userData: User) => {
     setUser(userData);
-    await AsyncStorage.setItem('user', JSON.stringify(userData));
+    await AsyncStorage.setItem('@chattify_user', JSON.stringify(userData));
   };
 
   const logout = async () => {
     setUser(null);
-    await AsyncStorage.removeItem('user');
+    await AsyncStorage.removeItem('@chattify_user');
   };
 
   return (

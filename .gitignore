@@ -1,0 +1,33 @@
+# Node.js (Backend - chattify-server)
+chattify-server/node_modules/
+chattify-server/.env
+chattify-server/.DS_Store
+chattify-server/logs
+chattify-server/debug.log
+
+# React Native (Frontend - chattify-app)
+chattify-app/node_modules/
+chattify-app/.expo/
+chattify-app/.expo-shared/
+chattify-app/.env
+chattify-app/.DS_Store
+chattify-app/android/
+chattify-app/ios/
+chattify-app/dist/
+chattify-app/web-build/
+chattify-app/coverage/
+
+# General
+.env
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.lock
+*.tmp
+.expo/
+.expo-shared/

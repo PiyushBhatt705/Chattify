@@ -1,40 +1,30 @@
-// lib/auth.ts
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { User } from '@/context/authContext';
 
-const API_URL = 'https://chattifybackend.onrender.com'; // Replace for deployment
+const USER_KEY = '@chattify_user';
 
-export const registerUser = async (name: string, email: string, password: string) => {
-  const res = await fetch(`${API_URL}/auth/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, email, password }),
-  });
-
-  if (!res.ok) return null;
-
-  const data = await res.json();
-  await AsyncStorage.setItem('token', data.token);
-  return data.user;
+export const storeUser = async (user: User) => {
+  try {
+    await AsyncStorage.setItem(USER_KEY, JSON.stringify(user));
+  } catch (err) {
+    console.error('Error storing user:', err);
+  }
 };
 
-export const loginUser = async (email: string, password: string) => {
-  const res = await fetch(`${API_URL}/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
-  });
-
-  if (!res.ok) return null;
-
-  const data = await res.json();
-  await AsyncStorage.setItem('token', data.token);
-  return data.user;
+export const getUser = async (): Promise<User | null> => {
+  try {
+    const userString = await AsyncStorage.getItem(USER_KEY);
+    return userString ? JSON.parse(userString) : null;
+  } catch (err) {
+    console.error('Error getting user:', err);
+    return null;
+  }
 };
 
-export const logoutUser = async () => {
-  await AsyncStorage.removeItem('token');
-};
-
-export const getToken = async () => {
-  return await AsyncStorage.getItem('token');
+export const removeUser = async () => {
+  try {
+    await AsyncStorage.removeItem(USER_KEY);
+  } catch (err) {
+    console.error('Error removing user:', err);
+  }
 };

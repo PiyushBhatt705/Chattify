@@ -1,18 +1,21 @@
-// App.tsx
+import React from 'react';
 import { Slot } from 'expo-router';
-import Toast from 'react-native-toast-message';
-import { AuthProvider } from './context/AuthContext';
-import { ChatProvider } from './context/ChatContext';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+import { AuthProvider } from '@/context/authContext';
+import { ChatProvider } from '@/context/chatContext';
 
 export default function App() {
   return (
-    <AuthProvider>
-      <ChatProvider>
-        <Slot />
-        <Toast />
-      </ChatProvider>
-    </AuthProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <AuthProvider>
+          <ChatProvider>
+            <Slot />
+          </ChatProvider>
+        </AuthProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
-
-

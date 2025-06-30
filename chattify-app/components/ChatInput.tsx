@@ -1,36 +1,50 @@
-import { View, TextInput, TouchableOpacity, Keyboard } from "react-native";
-import { useState } from "react";
+import React, { useState } from "react";
+import { View, TextInput, TouchableOpacity, Keyboard, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useTailwind } from "nativewind";
 
-type Props = {
+type ChatInputProps = {
   onSend: (message: string) => void;
 };
 
-export default function ChatInput({ onSend }: Props) {
-  const [text, setText] = useState("");
+const ChatInput: React.FC<ChatInputProps> = ({ onSend }) => {
+  const [message, setMessage] = useState("");
+  const tailwind = useTailwind();
 
   const handleSend = () => {
-    if (text.trim()) {
-      onSend(text.trim());
-      setText("");
+    if (message.trim()) {
+      onSend(message.trim());
+      setMessage("");
       Keyboard.dismiss();
     }
   };
 
   return (
-    <View className="flex-row items-center bg-gray-900 px-4 py-3 border-t border-gray-700">
+    <View
+      style={tailwind(
+        "flex-row items-center p-3 bg-[#0d0d0d] border-t border-gray-800"
+      )}
+    >
       <TextInput
-        className="flex-1 text-white bg-gray-800 rounded-full px-4 py-2 mr-2"
+        value={message}
+        onChangeText={setMessage}
         placeholder="Type a message..."
-        placeholderTextColor="#aaa"
-        value={text}
-        onChangeText={setText}
-        onSubmitEditing={handleSend}
-        returnKeyType="send"
+        placeholderTextColor="#888"
+        style={tailwind(
+          "flex-1 text-white px-4 py-2 rounded-full bg-[#1a1a1a] border border-gray-700"
+        )}
+        multiline
       />
-      <TouchableOpacity onPress={handleSend}>
-        <Ionicons name="send" size={24} color="#4ade80" />
+      <TouchableOpacity
+        onPress={handleSend}
+        style={tailwind(
+          "ml-3 p-2 rounded-full bg-[#2563eb] active:bg-[#1e40af]"
+        )}
+      >
+        <Ionicons name="send" size={22} color="#fff" />
       </TouchableOpacity>
     </View>
   );
-}
+};
+
+export default ChatInput;

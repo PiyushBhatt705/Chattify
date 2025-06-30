@@ -1,12 +1,15 @@
-import { View, Text, FlatList, KeyboardAvoidingView, Platform } from "react-native";
-import { useLocalSearchParams } from "expo-router";
-import { useEffect, useState, useRef } from "react";
-import { useAuth } from "@/context/AuthContext";
-import { getSocket } from "@/lib/socket";
-import ChatInput from "@/components/ChatInput";
-import { Message } from "@/types";
-import axios from "axios";
-import ChatMessage from "@/components/ChatMessage";
+/*
+📁 app/chat/[chatId].tsx
+*/
+import { View, Text, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
+import { useEffect, useState, useRef } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { getSocket } from '@/lib/socket';
+import ChatInput from '@/components/ChatInput';
+import { Message } from '@/types';
+import axios from 'axios';
+import ChatMessage from '@/components/ChatMessage';
 
 export default function ChatScreen() {
   const { chatId } = useLocalSearchParams();
@@ -20,7 +23,7 @@ export default function ChatScreen() {
         const res = await axios.get(`http://<YOUR-IP>:5000/api/messages/${chatId}`);
         setMessages(res.data.messages);
       } catch (err) {
-        console.error("Failed to fetch messages:", err);
+        console.error('Failed to fetch messages:', err);
       }
     };
 
@@ -31,7 +34,7 @@ export default function ChatScreen() {
 
   useEffect(() => {
     const socket = getSocket();
-    socket.on("receiveMessage", ({ senderId, message }) => {
+    socket.on('receiveMessage', ({ senderId, message }) => {
       if (senderId && message && chatId) {
         setMessages((prev) => [...prev, { senderId, content: message }]);
         scrollToBottom();
@@ -39,7 +42,7 @@ export default function ChatScreen() {
     });
 
     return () => {
-      socket.off("receiveMessage");
+      socket.off('receiveMessage');
     };
   }, [chatId]);
 
@@ -51,19 +54,16 @@ export default function ChatScreen() {
       content: text,
     };
 
-    // Emit to Socket.IO
     const socket = getSocket();
-    socket.emit("sendMessage", {
+    socket.emit('sendMessage', {
       senderId: user!._id,
-      receiverId: chatId, // Assuming chatId is the partner's userId
+      receiverId: chatId,
       message: text,
     });
 
-    // Optimistic UI update
     setMessages((prev) => [...prev, newMsg]);
     scrollToBottom();
 
-    // Optional: Save to DB via API
     try {
       await axios.post(`http://<YOUR-IP>:5000/api/messages/send`, {
         chatId,
@@ -71,7 +71,7 @@ export default function ChatScreen() {
         content: text,
       });
     } catch (err) {
-      console.error("Message not saved:", err);
+      console.error('Message not saved:', err);
     }
   };
 
@@ -84,7 +84,7 @@ export default function ChatScreen() {
   return (
     <KeyboardAvoidingView
       className="flex-1 bg-black"
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={90}
     >
       <FlatList

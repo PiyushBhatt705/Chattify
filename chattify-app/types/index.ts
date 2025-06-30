@@ -11,12 +11,12 @@ export interface User {
 export interface Message {
   _id: string;
   sender: User;
+  senderId: string;
   content: string;
   chat: string | Chat;
   createdAt: string;
   updatedAt: string;
   seenBy?: User[];
-  senderId: string;
 }
 
 export interface Chat {
@@ -42,7 +42,11 @@ export type TypingEvent = {
 export type AuthContextType = {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
-  register: (name: string, email: string, password: string) => Promise<boolean>;
+  register: (
+    name: string,
+    email: string,
+    password: string
+  ) => Promise<boolean>;
   logout: () => void;
 };
 
